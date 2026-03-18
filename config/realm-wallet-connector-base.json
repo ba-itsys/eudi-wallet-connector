@@ -1,0 +1,1188 @@
+{
+  "realm": "wallet-connector",
+  "enabled": true,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "browserFlow": "wallet browser",
+  "loginTheme": "wallet-connector",
+  "roles": {
+    "realm": [
+      {
+        "name": "default-roles-wallet-connector",
+        "description": "${role_default-roles}",
+        "composite": true,
+        "composites": {
+          "client": {
+            "account": [
+              "manage-account",
+              "manage-account-links",
+              "view-profile"
+            ]
+          }
+        },
+        "clientRole": false
+      }
+    ],
+    "client": {
+      "account": [
+        {
+          "name": "manage-account",
+          "description": "${role_manage-account}",
+          "composite": true,
+          "composites": {
+            "client": {
+              "account": [
+                "manage-account-links"
+              ]
+            }
+          },
+          "clientRole": true
+        },
+        {
+          "name": "manage-account-links",
+          "description": "${role_manage-account-links}",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "view-profile",
+          "description": "${role_view-profile}",
+          "composite": false,
+          "clientRole": true
+        }
+      ],
+      "account-console": [
+        {
+          "name": "view-groups",
+          "description": "${role_view-groups}",
+          "composite": false,
+          "clientRole": true
+        }
+      ]
+    }
+  },
+  "defaultRole": {
+    "name": "default-roles-wallet-connector",
+    "description": "${role_default-roles}",
+    "composite": true,
+    "clientRole": false
+  },
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "providerId": "declarative-user-profile",
+        "config": {
+          "kc.user.profile.config": [
+            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
+          ]
+        }
+      }
+    ]
+  },
+  "authenticationFlows": [
+    {
+      "alias": "wallet browser",
+      "description": "Browser flow that always triggers the EUDI wallet identity provider",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "flowAlias": "wallet browser forms",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "userSetupAllowed": false,
+          "authenticatorFlow": true
+        }
+      ]
+    },
+    {
+      "alias": "wallet browser forms",
+      "description": "Auto-redirects to the EUDI wallet provider",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticatorConfig": "wallet idp redirect config",
+          "authenticator": "identity-provider-redirector",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "userSetupAllowed": false,
+          "authenticatorFlow": false
+        }
+      ]
+    },
+    {
+      "alias": "wallet transient first broker login",
+      "description": "Transient wallet brokering without review-profile or persistent user creation",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "idp-create-user-if-unique",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "userSetupAllowed": false,
+          "authenticatorFlow": false
+        }
+      ]
+    }
+  ],
+  "authenticatorConfig": [
+    {
+      "alias": "wallet idp redirect config",
+      "config": {
+        "defaultProvider": "eudi-pid"
+      }
+    }
+  ],
+  "clientScopeMappings": {
+    "account": [
+      {
+        "client": "account-console",
+        "roles": [
+          "manage-account",
+          "view-groups"
+        ]
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "account",
+      "name": "${client_account}",
+      "rootUrl": "${authBaseUrl}",
+      "baseUrl": "/realms/wallet-connector/account/",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "/realms/wallet-connector/account/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "fullScopeAllowed": false,
+      "attributes": {
+        "post.logout.redirect.uris": "+"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "account-console",
+      "name": "${client_account-console}",
+      "rootUrl": "${authBaseUrl}",
+      "baseUrl": "/realms/wallet-connector/account/",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "/realms/wallet-connector/account/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "fullScopeAllowed": false,
+      "attributes": {
+        "post.logout.redirect.uris": "+",
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience resolve",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-resolve-mapper",
+          "consentRequired": false,
+          "config": {}
+        }
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "wallet-rp",
+      "name": "Wallet Connector RP",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "fullScopeAllowed": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      },
+      "defaultClientScopes": [
+        "wallet-pid"
+      ]
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "web-origins",
+      "description": "OpenID Connect scope for add allowed web origins to the access token",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "consent.screen.text": "",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "allowed web origins",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-allowed-origins-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "acr",
+      "description": "OpenID Connect scope for add acr (authentication context class reference) to the token",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "acr loa level",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-acr-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "true",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "description": "OpenID Connect built-in scope: profile",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "consent.screen.text": "${profileScopeConsentText}",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "full name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-full-name-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "true",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "family name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "lastName",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "family_name",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "given name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "firstName",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "given_name",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "username",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "username",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "preferred_username",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "name": "roles",
+      "description": "OpenID Connect scope for add user roles to the access token",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "consent.screen.text": "${rolesScopeConsentText}",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "foo",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String",
+            "multivalued": "true"
+          }
+        },
+        {
+          "name": "client roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "foo",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "resource_access.${client_id}.roles",
+            "jsonType.label": "String",
+            "multivalued": "true"
+          }
+        },
+        {
+          "name": "audience resolve",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-resolve-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "basic",
+      "description": "OpenID Connect scope for add all basic claims to the token",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "auth_time",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "AUTH_TIME",
+            "id.token.claim": "true",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "auth_time",
+            "jsonType.label": "long"
+          }
+        },
+        {
+          "name": "sub",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-sub-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "email",
+      "description": "OpenID Connect built-in scope: email",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "consent.screen.text": "${emailScopeConsentText}",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "email verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "emailVerified",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "email_verified",
+            "jsonType.label": "boolean"
+          }
+        },
+        {
+          "name": "email",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "email",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "email",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "name": "address",
+      "description": "OpenID Connect built-in scope: address",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "consent.screen.text": "${addressScopeConsentText}",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "address",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-address-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute.formatted": "formatted",
+            "user.attribute.country": "country",
+            "introspection.token.claim": "true",
+            "user.attribute.postal_code": "postal_code",
+            "userinfo.token.claim": "true",
+            "user.attribute.street": "street",
+            "id.token.claim": "true",
+            "user.attribute.region": "region",
+            "access.token.claim": "true",
+            "user.attribute.locality": "locality"
+          }
+        }
+      ]
+    },
+    {
+      "name": "phone",
+      "description": "OpenID Connect built-in scope: phone",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "consent.screen.text": "${phoneScopeConsentText}",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "phone number",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "phoneNumber",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "phone_number",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "phone number verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "phoneNumberVerified",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "phone_number_verified",
+            "jsonType.label": "boolean"
+          }
+        }
+      ]
+    },
+    {
+      "name": "organization",
+      "description": "Additional claims about the organization a subject belongs to",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "consent.screen.text": "${organizationScopeConsentText}",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "organization",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-organization-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "true",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "organization",
+            "jsonType.label": "String",
+            "multivalued": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "offline_access",
+      "description": "OpenID Connect built-in scope: offline_access",
+      "protocol": "openid-connect",
+      "attributes": {
+        "consent.screen.text": "${offlineAccessScopeConsentText}",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "name": "microprofile-jwt",
+      "description": "Microprofile - JWT built-in scope",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "upn",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "username",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "upn",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "multivalued": "true",
+            "user.attribute": "foo",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "groups",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "name": "wallet-pid",
+      "description": "Claims from the presented German PID credential",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "wallet-given-name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.given_name",
+            "claim.name": "given_name",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-family-name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.family_name",
+            "claim.name": "family_name",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-birthdate",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.birthdate",
+            "claim.name": "birthdate",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-address-street",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.address.street_address",
+            "claim.name": "address.street_address",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-address-locality",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.address.locality",
+            "claim.name": "address.locality",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-address-region",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.address.region",
+            "claim.name": "address.region",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-address-postal-code",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.address.postal_code",
+            "claim.name": "address.postal_code",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-address-country",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.address.country",
+            "claim.name": "address.country",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-pid-place-of-birth",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.place_of_birth",
+            "claim.name": "place_of_birth",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-pid-issuing-country",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.issuing_country",
+            "claim.name": "issuing_country",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-pid-issuing-authority",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.issuing_authority",
+            "claim.name": "issuing_authority",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        },
+        {
+          "name": "wallet-pid-expiry-date",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "wallet.expiry_date",
+            "claim.name": "expiry_date",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "identityProviders": [
+    {
+      "alias": "eudi-pid",
+      "displayName": "EUDI PID",
+      "providerId": "oid4vp",
+      "enabled": true,
+      "trustEmail": false,
+      "storeToken": false,
+      "addReadTokenRoleOnCreate": false,
+      "authenticateByDefault": false,
+      "linkOnly": false,
+      "firstBrokerLoginFlowAlias": "wallet transient first broker login",
+      "config": {
+        "clientId": "not-used",
+        "clientSecret": "not-used",
+        "doNotStoreUsers": "true",
+        "sameDeviceEnabled": "true",
+        "crossDeviceEnabled": "true",
+        "walletScheme": "openid4vp://",
+        "userMappingClaim": "",
+        "userMappingClaimMdoc": "",
+        "credentialSetMode": "optional",
+        "credentialSetPurpose": "Authenticate to an OAuth/OIDC relying party with your German PID",
+        "allowedCredentialTypes": "urn:eudi:pid:de:1,eu.europa.ec.eudi.pid.1",
+        "allowedIssuers": "*",
+        "enforceHaip": "false",
+        "clientIdScheme": "plain",
+        "responseMode": "direct_post",
+        "trustedAuthoritiesMode": "none",
+        "trustListUrl": ""
+      }
+    }
+  ],
+  "identityProviderMappers": [
+    {
+      "name": "grant-account-manage-account",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oidc-hardcoded-role-idp-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "role": "account.manage-account"
+      }
+    },
+    {
+      "name": "grant-account-manage-account-links",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oidc-hardcoded-role-idp-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "role": "account.manage-account-links"
+      }
+    },
+    {
+      "name": "grant-account-view-profile",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oidc-hardcoded-role-idp-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "role": "account.view-profile"
+      }
+    },
+    {
+      "name": "grant-account-console-view-groups",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oidc-hardcoded-role-idp-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "role": "account-console.view-groups"
+      }
+    },
+    {
+      "name": "sd-jwt-given-name",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "given_name",
+        "session.note": "wallet.given_name"
+      }
+    },
+    {
+      "name": "sd-jwt-family-name",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "family_name",
+        "session.note": "wallet.family_name"
+      }
+    },
+    {
+      "name": "sd-jwt-birthdate",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "birthdate",
+        "session.note": "wallet.birthdate"
+      }
+    },
+    {
+      "name": "sd-jwt-street",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "address/street_address",
+        "session.note": "wallet.address.street_address"
+      }
+    },
+    {
+      "name": "sd-jwt-locality",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "address/locality",
+        "session.note": "wallet.address.locality"
+      }
+    },
+    {
+      "name": "sd-jwt-region",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "address/region",
+        "session.note": "wallet.address.region"
+      }
+    },
+    {
+      "name": "sd-jwt-postal-code",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "address/postal_code",
+        "session.note": "wallet.address.postal_code"
+      }
+    },
+    {
+      "name": "sd-jwt-country",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "address/country",
+        "session.note": "wallet.address.country"
+      }
+    },
+    {
+      "name": "sd-jwt-place-of-birth",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "place_of_birth/locality",
+        "session.note": "wallet.place_of_birth"
+      }
+    },
+    {
+      "name": "sd-jwt-issuing-country",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "issuing_country",
+        "session.note": "wallet.issuing_country"
+      }
+    },
+    {
+      "name": "sd-jwt-issuing-authority",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "issuing_authority",
+        "session.note": "wallet.issuing_authority"
+      }
+    },
+    {
+      "name": "sd-jwt-expiry-date",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "dc+sd-jwt",
+        "credential.type": "urn:eudi:pid:de:1",
+        "claim": "date_of_expiry",
+        "session.note": "wallet.expiry_date"
+      }
+    },
+    {
+      "name": "mdoc-given-name",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "given_name",
+        "session.note": "wallet.given_name"
+      }
+    },
+    {
+      "name": "mdoc-family-name",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "family_name",
+        "session.note": "wallet.family_name"
+      }
+    },
+    {
+      "name": "mdoc-birthdate",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "birth_date",
+        "session.note": "wallet.birthdate"
+      }
+    },
+    {
+      "name": "mdoc-street",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "resident_street",
+        "session.note": "wallet.address.street_address"
+      }
+    },
+    {
+      "name": "mdoc-locality",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "resident_city",
+        "session.note": "wallet.address.locality"
+      }
+    },
+    {
+      "name": "mdoc-region",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "resident_state",
+        "session.note": "wallet.address.region"
+      }
+    },
+    {
+      "name": "mdoc-postal-code",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "resident_postal_code",
+        "session.note": "wallet.address.postal_code"
+      }
+    },
+    {
+      "name": "mdoc-country",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "resident_country",
+        "session.note": "wallet.address.country"
+      }
+    },
+    {
+      "name": "mdoc-place-of-birth",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "birth_place",
+        "session.note": "wallet.place_of_birth"
+      }
+    },
+    {
+      "name": "mdoc-issuing-country",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "issuing_country",
+        "session.note": "wallet.issuing_country"
+      }
+    },
+    {
+      "name": "mdoc-issuing-authority",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "issuing_authority",
+        "session.note": "wallet.issuing_authority"
+      }
+    },
+    {
+      "name": "mdoc-expiry-date",
+      "identityProviderAlias": "eudi-pid",
+      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "credential.format": "mso_mdoc",
+        "credential.type": "eu.europa.ec.eudi.pid.1",
+        "claim": "expiry_date",
+        "session.note": "wallet.expiry_date"
+      }
+    }
+  ]
+}

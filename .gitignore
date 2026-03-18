@@ -1,4 +1,6 @@
 .idea/
-target/
-dependency-reduced-pom.xml
-pom.xml.versionsBackup
+/target/
+/generated/
+/sandbox/
+/docker-compose.ngrok.yml
+/docker-compose.proxy.yml

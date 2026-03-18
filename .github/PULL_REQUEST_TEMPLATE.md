@@ -10,9 +10,9 @@
 <!-- Please include the following in your Pull Request when applicable: -->
 
 - [ ] Added or updated documentation
-- [ ] Tests for new functionality and regression tests for bug fixes
+- [ ] Validation or manual test steps were updated for behavioral changes
 - [ ] The commits follow the conventional commits (https://www.conventionalcommits.org/)
-- [ ] The code is properly formated `mvn spotless:apply`
+- [ ] Configs and scripts were validated locally
 - [ ] All your commits have a `Signed-off-by` line in the message (Signed Developer Certificate of Origins)
 
 

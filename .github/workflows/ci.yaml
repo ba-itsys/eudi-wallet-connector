@@ -1,4 +1,4 @@
-name: CI
+name: Validate Config
 
 on:
   push:
@@ -10,17 +10,26 @@ on:
   workflow_dispatch: { }
 
 jobs:
-  test:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v5
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: maven
+      - name: Check shell scripts
+        run: |
+          for script in scripts/*.sh; do
+            sh -n "$script"
+          done
 
-      - name: Build & test
-        run: mvn -B verify --no-transfer-progress
+      - name: Validate base realm JSON
+        run: jq empty config/realm-wallet-connector-base.json
+
+      - name: Generate local realm JSON
+        run: scripts/setup-local-realm.sh --local-wallet
+
+      - name: Validate generated realm JSON
+        run: jq empty generated/realm-wallet-connector-local.json
+
+      - name: Validate Docker Compose config
+        run: docker compose config
