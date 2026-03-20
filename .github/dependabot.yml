@@ -19,5 +19,5 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "deps"
+      prefix: "ci"
       include: "scope"
