@@ -122,10 +122,11 @@ require_cmd openssl
 require_cmd nc
 
 redirect_host="$(printf '%s' "$REDIRECT_URI" | sed -E 's#^[a-z]+://([^/:]+).*#\1#')"
-redirect_port="$(printf '%s' "$REDIRECT_URI" | sed -E 's#^[a-z]+://[^/:]+:([0-9]+).*#\1#')"
+redirect_port="$(printf '%s' "$REDIRECT_URI" | sed -nE 's#^[a-z]+://[^/:]+:([0-9]+).*#\1#p')"
 
 if [ -z "$redirect_host" ] || [ -z "$redirect_port" ]; then
   echo "Could not parse redirect URI host/port from: $REDIRECT_URI" >&2
+  echo "Use a redirect URI with an explicit numeric port, e.g. http://127.0.0.1:18080/callback" >&2
   exit 1
 fi
 
