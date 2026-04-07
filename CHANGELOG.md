@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.1...v0.1.2) (2026-04-07)
+
+
+### Bug Fixes
+
+* validate redirect URI port parsing in test oidc flow script ([1e2184b](https://github.com/ba-itsys/eudi-wallet-connector/commit/1e2184b674290278430e952223bbca9ddfa48ab2))
+
 ## [0.1.1](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.0...v0.1.1) (2026-03-19)
 
 
