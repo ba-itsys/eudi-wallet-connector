@@ -13,7 +13,7 @@
     <maven-dependency-plugin.version>3.10.0</maven-dependency-plugin.version>
     <oid4vp.groupId>de.arbeitsagentur.opdt</oid4vp.groupId>
     <oid4vp.artifactId>keycloak-extension-oid4vp</oid4vp.artifactId>
-    <oid4vp.version>0.5.1</oid4vp.version>
+    <oid4vp.version>0.5.2</oid4vp.version>
   </properties>
 
   <dependencies>
