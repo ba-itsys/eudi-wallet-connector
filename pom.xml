@@ -9,18 +9,11 @@
   <version>0.0.0</version>
   <packaging>pom</packaging>
 
-  <properties>
-    <maven-dependency-plugin.version>3.10.0</maven-dependency-plugin.version>
-    <oid4vp.groupId>de.arbeitsagentur.opdt</oid4vp.groupId>
-    <oid4vp.artifactId>keycloak-extension-oid4vp</oid4vp.artifactId>
-    <oid4vp.version>0.5.2</oid4vp.version>
-  </properties>
-
   <dependencies>
     <dependency>
-      <groupId>${oid4vp.groupId}</groupId>
-      <artifactId>${oid4vp.artifactId}</artifactId>
-      <version>${oid4vp.version}</version>
+      <groupId>de.arbeitsagentur.opdt</groupId>
+      <artifactId>keycloak-extension-oid4vp</artifactId>
+      <version>0.5.3</version>
     </dependency>
   </dependencies>
 
@@ -30,7 +23,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>${maven-dependency-plugin.version}</version>
+          <version>3.10.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
