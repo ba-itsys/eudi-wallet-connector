@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.3](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.2...v0.1.3) (2026-04-10)
+
+
+### Bug Fixes
+
+* go mod tidy removed oid4vc-dev dep + dep updates ([85ecba8](https://github.com/ba-itsys/eudi-wallet-connector/commit/85ecba870bf2a34ea2d6b1bce478d533cc7664b7))
+
+
+### Dependencies
+
+* **deps:** bump de.arbeitsagentur.opdt:keycloak-extension-oid4vp ([5e73d5c](https://github.com/ba-itsys/eudi-wallet-connector/commit/5e73d5c4419d3f21ffb81ae1352ced2ff7c7ad5d))
+* **deps:** bump github.com/dominikschlosser/oid4vc-dev in /tools  from 1.8.0 to 1.8.1 ([#15](https://github.com/ba-itsys/eudi-wallet-connector/issues/15)) ([6ee179f](https://github.com/ba-itsys/eudi-wallet-connector/commit/6ee179f71a277772a6324f8a5c4cf07eb666713b))
+
 ## [0.1.2](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.1...v0.1.2) (2026-04-07)
 
 
