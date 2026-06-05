@@ -32,7 +32,7 @@ Modes:
   --pem/--verifier-info    Configure the connector for a real wallet sandbox
 
 Options:
-  --wallet-port <port>     oid4vc-dev wallet port (default: 8086)
+  --wallet-port <port>     oid4vc-dev wallet port (default: 8087)
   --trust-list-url <url>   Override trust list URL
   --output <file>          Output realm file
   -h, --help               Show this help
@@ -40,7 +40,7 @@ EOF
 }
 
 LOCAL_WALLET=false
-WALLET_PORT=8086
+WALLET_PORT=8087
 PEM_FILE=""
 VERIFIER_INFO_FILE=""
 TRUST_LIST_URL=""
@@ -67,12 +67,13 @@ fi
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
 if [ "$LOCAL_WALLET" = "true" ]; then
-  TRUST_LIST_URL="${TRUST_LIST_URL:-http://host.docker.internal:${WALLET_PORT}/api/trustlist}"
+  TRUST_LIST_URL="${TRUST_LIST_URL:-http://host.docker.internal:${WALLET_PORT}/api/trustlists/pid}"
 
   jq \
     --arg trustListUrl "$TRUST_LIST_URL" \
     '
-      .identityProviders[0].config.enforceHaip = "false"
+      .sslRequired = "none"
+      | .identityProviders[0].config.enforceHaip = "false"
       | .identityProviders[0].config.responseMode = "direct_post"
       | .identityProviders[0].config.clientIdScheme = "plain"
       | .identityProviders[0].config.trustedAuthoritiesMode = "none"

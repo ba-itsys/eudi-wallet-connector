@@ -85,7 +85,7 @@ Local wallet mode:
 - `responseMode=direct_post`
 - `trustedAuthoritiesMode=none`
 - no verifier certificate
-- the trust list points to `oid4vc-dev`
+- the trust list points to the local `oid4vc-dev` PID trust list through `host.docker.internal`
 
 Sandbox mode:
 
@@ -94,6 +94,9 @@ Sandbox mode:
 - `trustedAuthoritiesMode=none`
 - `enforceHaip=true`
 - the verifier certificate and `verifierInfo` are injected from the SPRIND sandbox files
+
+This connector does not enforce OID4VP `trusted_authorities` constraints in its wallet request.
+Local wallet mode trusts the `oid4vc-dev` credentials by configuring `trustListUrl` for verifier-side issuer certificate validation while keeping `trustedAuthoritiesMode=none`.
 
 ## Customizing The Relying-Party Client
 

@@ -72,10 +72,8 @@ The page layout comes from the provider theme fragments plus the local login-the
 ## Verification and Trust Settings
 
 The upstream provider exposes verifier settings such as `responseMode`, `clientIdScheme`, HAIP handling, trust-list use, and `trustedAuthoritiesMode`.
-
-This repository keeps the trust-authorities mode disabled:
-
-- `trustedAuthoritiesMode=none`
+`trustedAuthoritiesMode` controls whether a `trusted_authorities` constraint is added to the DCQL query.
+This connector keeps that constraint disabled in all generated local realm profiles.
 
 The generated local realm then switches between two common verifier profiles:
 
@@ -84,14 +82,19 @@ Local wallet mode from [scripts/setup-local-realm.sh](../scripts/setup-local-rea
 - `clientIdScheme=plain`
 - `responseMode=direct_post`
 - `enforceHaip=false`
-- `trustListUrl` points to the local wallet or dev trust list
+- `trustedAuthoritiesMode=none`
+- `trustListUrl` points to the Docker-reachable local `oid4vc-dev` PID trust list
 
 Sandbox mode from [scripts/setup-local-realm.sh](../scripts/setup-local-realm.sh):
 
 - `clientIdScheme=x509_hash`
 - `responseMode=direct_post.jwt`
 - `enforceHaip=true`
+- `trustedAuthoritiesMode=none`
 - the verifier certificate PEM and `verifierInfo` are injected from local SPRIND sandbox files
+
+In local wallet mode, the trust list is used for verifier-side issuer signature validation only.
+It is not advertised to the wallet as a `trusted_authorities` DCQL constraint.
 
 For the meaning of those settings, use the upstream configuration reference linked above. That is the source of truth for provider behavior.
 

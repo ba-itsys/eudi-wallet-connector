@@ -30,8 +30,8 @@ This mode:
 - downloads the provider jar
 - installs `oid4vc-dev` into `target/bin/` with `go install` if it is not already available
 - generates a realm import for `oid4vc-dev`
-- starts an `oid4vc-dev` wallet with a PID
-- can wrap Keycloak with the `oid4vc-dev` proxy
+- starts a local `oid4vc-dev` wallet with a PID and registers the OS URL-scheme handler
+- can run the `oid4vc-dev` proxy alongside Keycloak
 - starts Keycloak locally
 
 Typical URLs:
@@ -39,7 +39,12 @@ Typical URLs:
 - Keycloak: `http://localhost:9090` when proxy is enabled, otherwise `http://localhost:8080`
 - Admin Console: `/admin`
 - `oid4vc-dev` dashboard: `http://localhost:9091`
-- wallet UI: `http://localhost:8086`
+- wallet UI: `http://localhost:8087`
+
+The wallet is a host-side process, not a Docker service.
+Local mode starts it with `--docker`, so Keycloak inside Docker can fetch the same PID trust list at `http://host.docker.internal:8087/api/trustlists/pid`.
+It also clears the local wallet status-list base URL when generating the default PID credentials, because Keycloak does not trust the wallet's ad-hoc HTTPS status-list certificate in local mode.
+The realm keeps `trustedAuthoritiesMode=none`; the trust list is only used by the verifier to validate locally issued credential signing chains.
 
 ## Sandbox Mode
 
@@ -83,7 +88,7 @@ Run an end-to-end OIDC test against the running connector:
 scripts/test-oidc-flow.sh --base-url http://localhost:8080
 ```
 
-If you are using the `oid4vc-dev` proxy wrapper, point the script at `http://localhost:9090` instead.
+If you are using the `oid4vc-dev` proxy, point the script at `http://localhost:9090` instead.
 
 The script reads `authorization_endpoint` and `token_endpoint` from OIDC discovery. If Keycloak runs behind ngrok, it will open the public HTTPS URL instead of `localhost`.
 
