@@ -1036,7 +1036,7 @@
         "syncMode": "INHERIT",
         "credential.format": "dc+sd-jwt",
         "credential.type": "urn:eudi:pid:de:1",
-        "claim": "date_of_expiry",
+        "claim": "expiry_date",
         "session.note": "wallet.expiry_date"
       }
     },
@@ -1098,18 +1098,6 @@
         "credential.type": "eu.europa.ec.eudi.pid.1",
         "claim": "resident_city",
         "session.note": "wallet.address.locality"
-      }
-    },
-    {
-      "name": "mdoc-region",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "resident_state",
-        "session.note": "wallet.address.region"
       }
     },
     {

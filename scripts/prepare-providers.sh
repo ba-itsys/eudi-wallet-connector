@@ -27,23 +27,10 @@ require_cmd() {
   fi
 }
 
-maven_eval() {
-  expression="$1"
-  mvn -q -f "$PROJECT_POM" -DforceStdout help:evaluate -Dexpression="$expression" | tail -n 1
-}
-
 mvn_dep() {
   goal="$1"
   shift
-  mvn -q -f "$PROJECT_POM" "org.apache.maven.plugins:maven-dependency-plugin:${DEPENDENCY_PLUGIN_VERSION}:${goal}" "$@"
-}
-
-maven_repo_path() {
-  mvn -q -f "$PROJECT_POM" -DforceStdout help:evaluate -Dexpression=settings.localRepository | tail -n 1
-}
-
-copy_jar() {
-  mvn_dep "copy" -Dartifact="$1:$2:$3" -DoutputDirectory="$OUTPUT_DIR"
+  mvn -q -f "$PROJECT_POM" "dependency:${goal}" "$@"
 }
 
 require_cmd mvn
@@ -53,23 +40,16 @@ if [ ! -f "$PROJECT_POM" ]; then
   exit 1
 fi
 
-DEPENDENCY_PLUGIN_VERSION="${DEPENDENCY_PLUGIN_VERSION:-$(maven_eval maven-dependency-plugin.version)}"
-OID4VP_GROUP_ID="${OID4VP_GROUP_ID:-$(maven_eval oid4vp.groupId)}"
-OID4VP_ARTIFACT_ID="${OID4VP_ARTIFACT_ID:-$(maven_eval oid4vp.artifactId)}"
-OID4VP_VERSION="${OID4VP_VERSION:-$(maven_eval oid4vp.version)}"
-
-MAVEN_REPO="$(maven_repo_path)"
-if [ -z "$MAVEN_REPO" ] || [ ! -d "$MAVEN_REPO" ]; then
-  echo "Could not determine Maven local repository path." >&2
-  exit 1
-fi
-
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
 echo "==> Preparing Keycloak provider jar in target/providers/"
 
-copy_jar "$OID4VP_GROUP_ID" "$OID4VP_ARTIFACT_ID" "$OID4VP_VERSION"
+mvn_dep "copy-dependencies" \
+  -DexcludeTransitive=true \
+  -DincludeScope=runtime \
+  -DincludeTypes=jar \
+  -DoutputDirectory="$OUTPUT_DIR"
 
 echo "    Provider jar:"
 find "$OUTPUT_DIR" -maxdepth 1 -type f -name '*.jar' -print | sed "s#^${ROOT_DIR}/##" | sort

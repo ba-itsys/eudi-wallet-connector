@@ -167,4 +167,4 @@ cleanup_override() {
 }
 trap 'cleanup; cleanup_override' INT TERM EXIT
 
-${KC_WRAPPER:-} docker compose -f docker-compose.yml -f "$NGROK_OVERRIDE" up keycloak
+${KC_WRAPPER:-} docker compose -f docker-compose.yml -f "$NGROK_OVERRIDE" up --force-recreate --renew-anon-volumes keycloak

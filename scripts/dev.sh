@@ -42,7 +42,7 @@ Options:
                            Default: sandbox/sandbox-verifier-info.json
   --trust-list-url <url>   Override trust list URL
   --domain <name>          Custom ngrok domain
-  --wallet-port <port>     oid4vc-dev wallet port (default: 8086)
+  --wallet-port <port>     oid4vc-dev wallet port (default: 8087)
   --no-build               Skip provider download
   --skip-realm             Skip realm generation
   --no-proxy               Disable oid4vc-dev proxy even if available
@@ -110,7 +110,7 @@ DO_PROXY=true
 DO_NGROK=true
 NGROK_ONLY=false
 LOCAL_WALLET=false
-WALLET_PORT=8086
+WALLET_PORT=8087
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -156,11 +156,11 @@ fi
 if [ "$DO_REALM" = "true" ]; then
   echo "==> Generating local realm config..."
   if [ "$LOCAL_WALLET" = "true" ]; then
+    set -- --local-wallet --wallet-port "$WALLET_PORT"
     if [ -n "$TRUST_LIST_URL" ]; then
-      "$ROOT_DIR/scripts/setup-local-realm.sh" --local-wallet --wallet-port "$WALLET_PORT" --trust-list-url "$TRUST_LIST_URL"
-    else
-      "$ROOT_DIR/scripts/setup-local-realm.sh" --local-wallet --wallet-port "$WALLET_PORT"
+      set -- "$@" --trust-list-url "$TRUST_LIST_URL"
     fi
+    "$ROOT_DIR/scripts/setup-local-realm.sh" "$@"
   else
     if [ ! -f "$PEM_FILE" ]; then
       echo "PEM file not found: $PEM_FILE" >&2
@@ -172,11 +172,11 @@ if [ "$DO_REALM" = "true" ]; then
       echo "Set --verifier-info or SANDBOX_DIR to point to your sandbox credentials." >&2
       exit 1
     fi
+    set -- --pem "$PEM_FILE" --verifier-info "$VERIFIER_INFO"
     if [ -n "$TRUST_LIST_URL" ]; then
-      "$ROOT_DIR/scripts/setup-local-realm.sh" --pem "$PEM_FILE" --verifier-info "$VERIFIER_INFO" --trust-list-url "$TRUST_LIST_URL"
-    else
-      "$ROOT_DIR/scripts/setup-local-realm.sh" --pem "$PEM_FILE" --verifier-info "$VERIFIER_INFO"
+      set -- "$@" --trust-list-url "$TRUST_LIST_URL"
     fi
+    "$ROOT_DIR/scripts/setup-local-realm.sh" "$@"
   fi
 else
   echo "==> Skipping realm generation (--skip-realm)"
@@ -192,11 +192,12 @@ fi
 
 PROXY_PORT=9090
 KC_PORT=8080
+PROXY_ENABLED=false
 
 if [ "$DO_PROXY" = "true" ] && [ -n "$OID4VC_DEV_BIN" ]; then
-  echo "==> oid4vc-dev proxy will wrap Keycloak (port $PROXY_PORT -> $KC_PORT)"
+  PROXY_ENABLED=true
+  echo "==> oid4vc-dev proxy will run alongside Keycloak (port $PROXY_PORT -> $KC_PORT)"
   echo "    oid4vc-dev dashboard: http://localhost:9091"
-  export KC_WRAPPER="$OID4VC_DEV_BIN proxy --target http://localhost:$KC_PORT --port $PROXY_PORT --"
   export NGROK_TARGET_PORT="$PROXY_PORT"
 elif [ "$DO_PROXY" = "true" ]; then
   echo "==> oid4vc-dev not found, skipping proxy"
@@ -205,15 +206,20 @@ fi
 WALLET_PID=""
 if [ "$LOCAL_WALLET" = "true" ]; then
   echo "==> Starting oid4vc-dev wallet on port $WALLET_PORT..."
-  "$OID4VC_DEV_BIN" wallet serve --pid --port "$WALLET_PORT" --register &
+  "$OID4VC_DEV_BIN" wallet serve --pid --docker --port "$WALLET_PORT" --base-url "" --register &
   WALLET_PID=$!
   sleep 1
   echo "    Wallet UI: http://localhost:$WALLET_PORT"
-  echo "    Trust list: http://localhost:$WALLET_PORT/api/trustlist"
+  echo "    Trust list: http://localhost:$WALLET_PORT/api/trustlists/pid"
 fi
 
+PROXY_PID=""
 PROXY_OVERRIDE=""
 cleanup() {
+  if [ -n "$PROXY_PID" ] && kill -0 "$PROXY_PID" 2>/dev/null; then
+    echo "==> Stopping oid4vc-dev proxy..."
+    kill "$PROXY_PID" 2>/dev/null || true
+  fi
   if [ -n "$WALLET_PID" ] && kill -0 "$WALLET_PID" 2>/dev/null; then
     echo "==> Stopping oid4vc-dev wallet..."
     kill "$WALLET_PID" 2>/dev/null || true
@@ -224,12 +230,30 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+start_proxy() {
+  if [ "$PROXY_ENABLED" != "true" ] || [ "$NGROK_ONLY" = "true" ]; then
+    return 0
+  fi
+
+  echo "==> Starting oid4vc-dev proxy..."
+  "$OID4VC_DEV_BIN" proxy --target "http://localhost:$KC_PORT" --port "$PROXY_PORT" &
+  PROXY_PID=$!
+  sleep 0.5
+  if ! kill -0 "$PROXY_PID" 2>/dev/null; then
+    echo "oid4vc-dev proxy exited before startup completed." >&2
+    wait "$PROXY_PID" 2>/dev/null || true
+    exit 1
+  fi
+}
+
+start_proxy
+
 if [ "$DO_NGROK" = "false" ]; then
   echo "==> Starting Keycloak (localhost only)..."
   cd "$ROOT_DIR"
   EXTERNAL_PORT="${NGROK_TARGET_PORT:-$KC_PORT}"
   COMPOSE_FILES="-f docker-compose.yml"
-  if [ -n "${KC_WRAPPER:-}" ]; then
+  if [ "$PROXY_ENABLED" = "true" ]; then
     PROXY_OVERRIDE="$ROOT_DIR/docker-compose.proxy.yml"
     cat > "$PROXY_OVERRIDE" <<YAML
 services:
@@ -242,7 +266,7 @@ YAML
   fi
   echo "    Keycloak: http://localhost:$EXTERNAL_PORT"
   echo "    Admin console: http://localhost:$EXTERNAL_PORT/admin"
-  ${KC_WRAPPER:-} docker compose $COMPOSE_FILES up keycloak
+  docker compose $COMPOSE_FILES up --force-recreate --renew-anon-volumes keycloak
 else
   echo "==> Starting ngrok + Keycloak..."
   NGROK_ARGS=""

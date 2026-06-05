@@ -35,5 +35,8 @@ jobs:
       - name: Validate generated realm JSON
         run: jq empty generated/realm-wallet-connector-local.json
 
+      - name: Test realm generation modes
+        run: sh tests/setup-local-realm-test.sh
+
       - name: Validate Docker Compose config
         run: docker compose config
