@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.7](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.6...v0.1.7) (2026-06-18)
+
+
+### Bug Fixes
+
+* startup script ([6ac18e2](https://github.com/ba-itsys/eudi-wallet-connector/commit/6ac18e2274a9440aa1b7e26f1e69e6646a85d820))
+
+
+### Dependencies
+
+* **deps-dev:** bump org.apache.maven.plugins:maven-dependency-plugin ([203615d](https://github.com/ba-itsys/eudi-wallet-connector/commit/203615d0949109737bda93231e00631734923f6e))
+
 ## [0.1.6](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.5...v0.1.6) (2026-04-28)
 
 
