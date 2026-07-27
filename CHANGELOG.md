@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.10](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.9...v0.1.10) (2026-07-27)
+
+
+### Dependencies
+
+* **deps:** bump github.com/dominikschlosser/oid4vc-dev in /tools ([4464a19](https://github.com/ba-itsys/eudi-wallet-connector/commit/4464a1937a7ad116cb799ee9936d5d59452f219e))
+
 ## [0.1.9](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.8...v0.1.9) (2026-07-14)
 
 
