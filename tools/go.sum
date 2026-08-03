@@ -1,6 +1,6 @@
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
-github.com/dominikschlosser/oid4vc-dev v1.11.0 h1:5md0vsr86AvZQYOEgCH8HJFJPLEO9WKiAvypIUhD98M=
-github.com/dominikschlosser/oid4vc-dev v1.11.0/go.mod h1:SR4MGD7zXzBfcX6A/9NFNPykqjqtTaAaNbNBcMXShjY=
+github.com/dominikschlosser/oid4vc-dev v1.12.2 h1:FNl4LUdKmZV+4+OubpBftTwY3w+Slctc+pDJCfClewY=
+github.com/dominikschlosser/oid4vc-dev v1.12.2/go.mod h1:SR4MGD7zXzBfcX6A/9NFNPykqjqtTaAaNbNBcMXShjY=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=
 github.com/fatih/color v1.18.0/go.mod h1:4FelSpRwEGDpQ12mAdzqdOukCy4u8WUtOY6lkT/6HfU=
 github.com/fxamacker/cbor/v2 v2.9.0 h1:NpKPmjDBgUfBms6tr6JZkTHtfFGcMKsw3eGcmD/sapM=
