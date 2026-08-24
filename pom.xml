@@ -13,7 +13,7 @@
     <dependency>
       <groupId>de.arbeitsagentur.opdt</groupId>
       <artifactId>keycloak-extension-oid4vp</artifactId>
-      <version>0.7.0</version>
+      <version>0.9.4</version>
     </dependency>
   </dependencies>
 
