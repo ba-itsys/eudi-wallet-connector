@@ -20,6 +20,8 @@ ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 BASE_REALM="${ROOT_DIR}/config/realm-wallet-connector-base.json"
 REALM_OUT="${ROOT_DIR}/generated/realm-wallet-connector-local.json"
 DEFAULT_SANDBOX_TRUST_LIST_URL="https://bmi.usercontent.opencode.de/eudi-wallet/test-trust-lists/pid-provider.jwt"
+SANDBOX_TRUST_LIST_LOTE_TYPE="http://uri.etsi.org/19602/LoTEType/EUPIDProvidersList"
+LOCAL_WALLET_TRUST_LIST_LOTE_TYPE="http://uri.etsi.org/19602/LoTEType/local"
 
 usage() {
   cat <<'EOF'
@@ -36,6 +38,9 @@ Options:
   --trust-list-url <url>   Override trust list URL
   --output <file>          Output realm file
   -h, --help               Show this help
+
+The trust list is configured on the `eudi-pid-trust` identity provider, which the
+`eudi-pid` provider references through `trustMaterialIdps`.
 EOF
 }
 
@@ -71,15 +76,21 @@ if [ "$LOCAL_WALLET" = "true" ]; then
 
   jq \
     --arg trustListUrl "$TRUST_LIST_URL" \
+    --arg loteType "$LOCAL_WALLET_TRUST_LIST_LOTE_TYPE" \
     '
       .sslRequired = "none"
-      | .identityProviders[0].config.enforceHaip = "false"
-      | .identityProviders[0].config.responseMode = "direct_post"
-      | .identityProviders[0].config.clientIdScheme = "plain"
-      | .identityProviders[0].config.trustedAuthoritiesMode = "none"
-      | .identityProviders[0].config.trustListUrl = $trustListUrl
-      | del(.identityProviders[0].config.x509CertificatePem)
-      | del(.identityProviders[0].config.verifierInfo)
+      | (.identityProviders[] | select(.alias == "eudi-pid").config) |= (
+          .responseMode = "direct_post"
+          | .clientIdScheme = "plain"
+          | .requestUriMethodPost = "false"
+          | del(.x509CertificatePem)
+          | del(.verifierInfo)
+        )
+      | (.identityProviders[] | select(.alias == "eudi-pid-trust").config) |= (
+          .trustListUrl = $trustListUrl
+          | .trustListLoTEType = $loteType
+          | .advertiseTrustedAuthorities = ""
+        )
     ' \
     "$BASE_REALM" > "$OUTPUT_FILE"
 else
@@ -101,16 +112,22 @@ else
 
   jq \
     --arg trustListUrl "$TRUST_LIST_URL" \
+    --arg loteType "$SANDBOX_TRUST_LIST_LOTE_TYPE" \
     --rawfile pem "$PEM_FILE" \
     --rawfile verifierInfo "$VERIFIER_INFO_FILE" \
     '
-      .identityProviders[0].config.enforceHaip = "true"
-      | .identityProviders[0].config.responseMode = "direct_post.jwt"
-      | .identityProviders[0].config.clientIdScheme = "x509_hash"
-      | .identityProviders[0].config.trustedAuthoritiesMode = "none"
-      | .identityProviders[0].config.trustListUrl = $trustListUrl
-      | .identityProviders[0].config.x509CertificatePem = $pem
-      | .identityProviders[0].config.verifierInfo = $verifierInfo
+      (.identityProviders[] | select(.alias == "eudi-pid").config) |= (
+        .responseMode = "direct_post.jwt"
+        | .clientIdScheme = "x509_hash"
+        | .requestUriMethodPost = "false"
+        | .x509CertificatePem = $pem
+        | .verifierInfo = $verifierInfo
+      )
+      | (.identityProviders[] | select(.alias == "eudi-pid-trust").config) |= (
+          .trustListUrl = $trustListUrl
+          | .trustListLoTEType = $loteType
+          | .advertiseTrustedAuthorities = ""
+        )
     ' \
     "$BASE_REALM" > "$OUTPUT_FILE"
 fi

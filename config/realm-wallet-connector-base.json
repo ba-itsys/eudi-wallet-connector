@@ -698,7 +698,7 @@
           }
         },
         {
-          "name": "wallet-address-street",
+          "name": "wallet-street-address",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usersessionmodel-note-mapper",
           "consentRequired": false,
@@ -712,7 +712,7 @@
           }
         },
         {
-          "name": "wallet-address-locality",
+          "name": "wallet-locality",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usersessionmodel-note-mapper",
           "consentRequired": false,
@@ -726,21 +726,7 @@
           }
         },
         {
-          "name": "wallet-address-region",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usersessionmodel-note-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.session.note": "wallet.address.region",
-            "claim.name": "address.region",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "access.token.claim": "false"
-          }
-        },
-        {
-          "name": "wallet-address-postal-code",
+          "name": "wallet-postal-code",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usersessionmodel-note-mapper",
           "consentRequired": false,
@@ -754,7 +740,7 @@
           }
         },
         {
-          "name": "wallet-address-country",
+          "name": "wallet-country",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usersessionmodel-note-mapper",
           "consentRequired": false,
@@ -768,55 +754,13 @@
           }
         },
         {
-          "name": "wallet-pid-place-of-birth",
+          "name": "wallet-place-of-birth",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usersessionmodel-note-mapper",
           "consentRequired": false,
           "config": {
             "user.session.note": "wallet.place_of_birth",
             "claim.name": "place_of_birth",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "access.token.claim": "false"
-          }
-        },
-        {
-          "name": "wallet-pid-issuing-country",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usersessionmodel-note-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.session.note": "wallet.issuing_country",
-            "claim.name": "issuing_country",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "access.token.claim": "false"
-          }
-        },
-        {
-          "name": "wallet-pid-issuing-authority",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usersessionmodel-note-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.session.note": "wallet.issuing_authority",
-            "claim.name": "issuing_authority",
-            "jsonType.label": "String",
-            "id.token.claim": "true",
-            "userinfo.token.claim": "true",
-            "access.token.claim": "false"
-          }
-        },
-        {
-          "name": "wallet-pid-expiry-date",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usersessionmodel-note-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.session.note": "wallet.expiry_date",
-            "claim.name": "expiry_date",
             "jsonType.label": "String",
             "id.token.claim": "true",
             "userinfo.token.claim": "true",
@@ -845,17 +789,29 @@
         "sameDeviceEnabled": "true",
         "crossDeviceEnabled": "true",
         "walletScheme": "openid4vp://",
-        "userMappingClaim": "",
-        "userMappingClaimMdoc": "",
-        "credentialSetMode": "optional",
-        "credentialSetPurpose": "Authenticate to an OAuth/OIDC relying party with your German PID",
-        "allowedCredentialTypes": "urn:eudi:pid:de:1,eu.europa.ec.eudi.pid.1",
+        "credentialSets": "[{\"purpose\":\"Authenticate to an OAuth/OIDC relying party with your German PID\",\"options\":[[\"pid\"]]}]",
+        "trustMaterialIdps": "eudi-pid-trust",
         "allowedIssuers": "*",
-        "enforceHaip": "false",
-        "clientIdScheme": "plain",
-        "responseMode": "direct_post",
-        "trustedAuthoritiesMode": "none",
-        "trustListUrl": ""
+        "clientIdScheme": "x509_hash",
+        "responseMode": "direct_post.jwt",
+        "requestUriMethodPost": "false"
+      }
+    },
+    {
+      "alias": "eudi-pid-trust",
+      "displayName": "German PID Trust Material",
+      "providerId": "etsi-trust-list",
+      "enabled": true,
+      "trustEmail": false,
+      "storeToken": false,
+      "addReadTokenRoleOnCreate": false,
+      "authenticateByDefault": false,
+      "linkOnly": false,
+      "config": {
+        "trustListUrl": "",
+        "trustListLoTEType": "http://uri.etsi.org/19602/LoTEType/EUPIDProvidersList",
+        "servedCredentialTypes": "urn:eudi:pid:de:1",
+        "advertiseTrustedAuthorities": ""
       }
     }
   ],
@@ -899,277 +855,97 @@
     {
       "name": "sd-jwt-given-name",
       "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "identityProviderMapper": "oid4vp-sd-jwt-user-session-attribute-idp-mapper",
       "config": {
         "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
+        "credential.id": "pid",
         "credential.type": "urn:eudi:pid:de:1",
         "claim": "given_name",
-        "session.note": "wallet.given_name"
+        "attribute": "wallet.given_name"
       }
     },
     {
       "name": "sd-jwt-family-name",
       "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "identityProviderMapper": "oid4vp-sd-jwt-user-session-attribute-idp-mapper",
       "config": {
         "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
+        "credential.id": "pid",
         "credential.type": "urn:eudi:pid:de:1",
         "claim": "family_name",
-        "session.note": "wallet.family_name"
+        "attribute": "wallet.family_name"
       }
     },
     {
       "name": "sd-jwt-birthdate",
       "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "identityProviderMapper": "oid4vp-sd-jwt-user-session-attribute-idp-mapper",
       "config": {
         "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
+        "credential.id": "pid",
         "credential.type": "urn:eudi:pid:de:1",
         "claim": "birthdate",
-        "session.note": "wallet.birthdate"
+        "attribute": "wallet.birthdate"
       }
     },
     {
-      "name": "sd-jwt-street",
+      "name": "sd-jwt-street-address",
       "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "identityProviderMapper": "oid4vp-sd-jwt-user-session-attribute-idp-mapper",
       "config": {
         "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
+        "credential.id": "pid",
         "credential.type": "urn:eudi:pid:de:1",
-        "claim": "address/street_address",
-        "session.note": "wallet.address.street_address"
+        "claim": "address.street_address",
+        "attribute": "wallet.address.street_address"
       }
     },
     {
       "name": "sd-jwt-locality",
       "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "identityProviderMapper": "oid4vp-sd-jwt-user-session-attribute-idp-mapper",
       "config": {
         "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
+        "credential.id": "pid",
         "credential.type": "urn:eudi:pid:de:1",
-        "claim": "address/locality",
-        "session.note": "wallet.address.locality"
-      }
-    },
-    {
-      "name": "sd-jwt-region",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
-        "credential.type": "urn:eudi:pid:de:1",
-        "claim": "address/region",
-        "session.note": "wallet.address.region"
+        "claim": "address.locality",
+        "attribute": "wallet.address.locality"
       }
     },
     {
       "name": "sd-jwt-postal-code",
       "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "identityProviderMapper": "oid4vp-sd-jwt-user-session-attribute-idp-mapper",
       "config": {
         "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
+        "credential.id": "pid",
         "credential.type": "urn:eudi:pid:de:1",
-        "claim": "address/postal_code",
-        "session.note": "wallet.address.postal_code"
+        "claim": "address.postal_code",
+        "attribute": "wallet.address.postal_code"
       }
     },
     {
       "name": "sd-jwt-country",
       "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "identityProviderMapper": "oid4vp-sd-jwt-user-session-attribute-idp-mapper",
       "config": {
         "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
+        "credential.id": "pid",
         "credential.type": "urn:eudi:pid:de:1",
-        "claim": "address/country",
-        "session.note": "wallet.address.country"
+        "claim": "address.country",
+        "attribute": "wallet.address.country"
       }
     },
     {
       "name": "sd-jwt-place-of-birth",
       "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
+      "identityProviderMapper": "oid4vp-sd-jwt-user-session-attribute-idp-mapper",
       "config": {
         "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
+        "credential.id": "pid",
         "credential.type": "urn:eudi:pid:de:1",
-        "claim": "place_of_birth/locality",
-        "session.note": "wallet.place_of_birth"
-      }
-    },
-    {
-      "name": "sd-jwt-issuing-country",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
-        "credential.type": "urn:eudi:pid:de:1",
-        "claim": "issuing_country",
-        "session.note": "wallet.issuing_country"
-      }
-    },
-    {
-      "name": "sd-jwt-issuing-authority",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
-        "credential.type": "urn:eudi:pid:de:1",
-        "claim": "issuing_authority",
-        "session.note": "wallet.issuing_authority"
-      }
-    },
-    {
-      "name": "sd-jwt-expiry-date",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "dc+sd-jwt",
-        "credential.type": "urn:eudi:pid:de:1",
-        "claim": "expiry_date",
-        "session.note": "wallet.expiry_date"
-      }
-    },
-    {
-      "name": "mdoc-given-name",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "given_name",
-        "session.note": "wallet.given_name"
-      }
-    },
-    {
-      "name": "mdoc-family-name",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "family_name",
-        "session.note": "wallet.family_name"
-      }
-    },
-    {
-      "name": "mdoc-birthdate",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "birth_date",
-        "session.note": "wallet.birthdate"
-      }
-    },
-    {
-      "name": "mdoc-street",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "resident_street",
-        "session.note": "wallet.address.street_address"
-      }
-    },
-    {
-      "name": "mdoc-locality",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "resident_city",
-        "session.note": "wallet.address.locality"
-      }
-    },
-    {
-      "name": "mdoc-postal-code",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "resident_postal_code",
-        "session.note": "wallet.address.postal_code"
-      }
-    },
-    {
-      "name": "mdoc-country",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "resident_country",
-        "session.note": "wallet.address.country"
-      }
-    },
-    {
-      "name": "mdoc-place-of-birth",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "birth_place",
-        "session.note": "wallet.place_of_birth"
-      }
-    },
-    {
-      "name": "mdoc-issuing-country",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "issuing_country",
-        "session.note": "wallet.issuing_country"
-      }
-    },
-    {
-      "name": "mdoc-issuing-authority",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "issuing_authority",
-        "session.note": "wallet.issuing_authority"
-      }
-    },
-    {
-      "name": "mdoc-expiry-date",
-      "identityProviderAlias": "eudi-pid",
-      "identityProviderMapper": "oid4vp-user-session-mapper",
-      "config": {
-        "syncMode": "INHERIT",
-        "credential.format": "mso_mdoc",
-        "credential.type": "eu.europa.ec.eudi.pid.1",
-        "claim": "expiry_date",
-        "session.note": "wallet.expiry_date"
+        "claim": "place_of_birth.locality",
+        "attribute": "wallet.place_of_birth"
       }
     }
   ]

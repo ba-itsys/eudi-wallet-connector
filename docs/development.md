@@ -44,7 +44,7 @@ Typical URLs:
 The wallet is a host-side process, not a Docker service.
 Local mode starts it with `--docker`, so Keycloak inside Docker can fetch the same PID trust list at `http://host.docker.internal:8087/api/trustlists/pid`.
 It also clears the local wallet status-list base URL when generating the default PID credentials, because Keycloak does not trust the wallet's ad-hoc HTTPS status-list certificate in local mode.
-The realm keeps `trustedAuthoritiesMode=none`; the trust list is only used by the verifier to validate locally issued credential signing chains.
+The realm keeps `advertiseTrustedAuthorities` empty on the `eudi-pid-trust` provider; the trust list is only used by the verifier to validate locally issued credential signing chains.
 
 ## Sandbox Mode
 
