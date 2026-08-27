@@ -123,6 +123,10 @@ require_cmd nc
 
 redirect_host="$(printf '%s' "$REDIRECT_URI" | sed -E 's#^[a-z]+://([^/:]+).*#\1#')"
 redirect_port="$(printf '%s' "$REDIRECT_URI" | sed -nE 's#^[a-z]+://[^/:]+:([0-9]+).*#\1#p')"
+redirect_path="$(printf '%s' "$REDIRECT_URI" | sed -E 's#^[a-z]+://[^/]+##; s#\?.*##')"
+if [ -z "$redirect_path" ]; then
+  redirect_path="/"
+fi
 
 if [ -z "$redirect_host" ] || [ -z "$redirect_port" ]; then
   echo "Could not parse redirect URI host/port from: $REDIRECT_URI" >&2
@@ -163,17 +167,6 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "Listening for the authorization redirect on ${redirect_host}:${redirect_port} ..."
-(
-  {
-    printf 'HTTP/1.1 200 OK\r\n'
-    printf 'Content-Type: text/plain; charset=utf-8\r\n'
-    printf 'Connection: close\r\n'
-    printf '\r\n'
-    printf 'Wallet login completed. Return to the terminal.\r\n'
-  } | nc -l "$redirect_host" "$redirect_port" > "$tmp_request"
-) &
-listener_pid=$!
-
 echo "Open this URL to start the wallet flow:"
 echo "$auth_url"
 if [ "$auth_endpoint" != "${BASE_URL%/}/realms/${REALM}/protocol/openid-connect/auth" ]; then
@@ -181,26 +174,27 @@ if [ "$auth_endpoint" != "${BASE_URL%/}/realms/${REALM}/protocol/openid-connect/
 fi
 open_browser "$auth_url"
 
-wait "$listener_pid"
-
-request_path="$(
-  tr -d '\r' < "$tmp_request" \
-    | sed -n '1s#^GET \([^ ]*\) HTTP/1\.[01]$#\1#p'
-)"
-if [ -z "$request_path" ]; then
-  echo "No authorization redirect captured." >&2
-  exit 1
-fi
-
 query_string=""
-case "$request_path" in
-  *\?*) query_string="${request_path#*\?}" ;;
-esac
+while [ -z "$query_string" ]; do
+  {
+    printf 'HTTP/1.1 200 OK\r\n'
+    printf 'Content-Type: text/plain; charset=utf-8\r\n'
+    printf 'Connection: close\r\n'
+    printf '\r\n'
+    printf 'Wallet login completed. Return to the terminal.\r\n'
+  } | nc -l "$redirect_host" "$redirect_port" > "$tmp_request"
 
-if [ -z "$query_string" ]; then
-  echo "Redirect did not contain a query string: $request_path" >&2
-  exit 1
-fi
+  request_path="$(
+    tr -d '\r' < "$tmp_request" \
+      | sed -n '1s#^GET \([^ ]*\) HTTP/1\.[01]$#\1#p'
+  )"
+
+  case "$request_path" in
+    "$redirect_path"\?*) query_string="${request_path#*\?}" ;;
+    "") echo "Ignoring connection without a parseable request line." >&2 ;;
+    *) echo "Ignoring unrelated request: $request_path" >&2 ;;
+  esac
+done
 
 returned_state="$(extract_query_param "$query_string" state)"
 if [ "$returned_state" != "$state" ]; then

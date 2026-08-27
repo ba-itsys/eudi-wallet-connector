@@ -794,7 +794,7 @@
         "allowedIssuers": "*",
         "clientIdScheme": "x509_hash",
         "responseMode": "direct_post.jwt",
-        "requestUriMethodPost": "false"
+        "requestUriMethodPost": true
       }
     },
     {
@@ -808,7 +808,7 @@
       "authenticateByDefault": false,
       "linkOnly": false,
       "config": {
-        "trustListUrl": "",
+        "trustListUrl": "https://bmi.usercontent.opencode.de/eudi-wallet/test-trust-lists/pid-provider.jwt",
         "trustListLoTEType": "http://uri.etsi.org/19602/LoTEType/EUPIDProvidersList",
         "servedCredentialTypes": "urn:eudi:pid:de:1",
         "advertiseTrustedAuthorities": ""
