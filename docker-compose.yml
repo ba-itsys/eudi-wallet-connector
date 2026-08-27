@@ -15,7 +15,7 @@
 
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:26.5.4
+    image: quay.io/keycloak/keycloak:26.7.2
     command:
       - start-dev
       - --features=transient-users

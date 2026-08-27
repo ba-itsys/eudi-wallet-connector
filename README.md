@@ -9,7 +9,7 @@ Configuration-only Keycloak distribution that turns a Keycloak instance into an 
 
 It uses the `de.arbeitsagentur.opdt:keycloak-extension-oid4vp` provider and includes:
 
-- a realm import for a German PID-focused wallet connector
+- a realm import that requests the German PID as SD-JWT VC (`vct` `urn:eudi:pid:de:1`)
 - transient-user configuration (`doNotStoreUsers=true`) so no brokered users are persisted
 - session-note mapping from wallet claims to `id_token` and `userinfo`
 - a default OIDC client for relying-party testing
@@ -54,7 +54,7 @@ The helper reads OIDC discovery from `--base-url` and uses the browser-facing ho
 Example authorization request:
 
 ```text
-http://localhost:8080/realms/wallet-connector/protocol/openid-connect/auth?client_id=wallet-rp&redirect_uri=http%3A%2F%2Flocalhost%3A8081%2Fcallback&response_type=code&scope=openid%20wallet-pid&code_challenge=challenge&code_challenge_method=S256
+http://localhost:8080/realms/wallet-connector/protocol/openid-connect/auth?client_id=wallet-rp&redirect_uri=http%3A%2F%2Flocalhost%3A8081%2Fcallback&response_type=code&scope=openid%20wallet-pid&code_challenge=_-BU_nrgy23GXDr5th1SCfQ5hR20PQulmXM33xVGaOs&code_challenge_method=S256
 ```
 
 The default browser flow auto-selects the PID provider alias `eudi-pid`.

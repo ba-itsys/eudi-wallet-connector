@@ -55,21 +55,55 @@ EOF
 local_realm="$TMP_DIR/local-realm.json"
 "$ROOT_DIR/scripts/setup-local-realm.sh" --local-wallet --output "$local_realm" >/dev/null
 
+pid_idp='.identityProviders[] | select(.alias == "eudi-pid")'
+trust_idp='.identityProviders[] | select(.alias == "eudi-pid-trust")'
+
 assert_jq "$local_realm" \
-  '.identityProviders[0].config.trustedAuthoritiesMode == "none"' \
-  "local wallet mode should not enforce trusted authorities"
+  "$pid_idp"'.config.trustMaterialIdps == "eudi-pid-trust"' \
+  "the PID provider should reference the trust material provider"
 assert_jq "$local_realm" \
-  '.identityProviders[0].config.trustListUrl == "http://host.docker.internal:8087/api/trustlists/pid"' \
+  "$trust_idp"'.providerId == "etsi-trust-list"' \
+  "trust material should live on an etsi-trust-list provider"
+assert_jq "$local_realm" \
+  "$trust_idp"'.config.advertiseTrustedAuthorities == ""' \
+  "local wallet mode should not advertise trusted authorities"
+assert_jq "$local_realm" \
+  "$trust_idp"'.config.trustListUrl == "http://host.docker.internal:8087/api/trustlists/pid"' \
   "local wallet mode should point at the oid4vc-dev PID trust list"
+assert_jq "$local_realm" \
+  "$trust_idp"'.config.trustListLoTEType == "http://uri.etsi.org/19602/LoTEType/local"' \
+  "local wallet mode should expect the oid4vc-dev trust list type"
+assert_jq "$local_realm" \
+  "$trust_idp"'.config.servedCredentialTypes == "urn:eudi:pid:de:1"' \
+  "trust material should serve the German PID credential type"
 assert_jq "$local_realm" \
   '.sslRequired == "none"' \
   "local wallet mode should not require HTTPS"
 assert_jq "$local_realm" \
-  '.identityProviders[0].config | has("x509CertificatePem") | not' \
+  "$pid_idp"'.config | has("x509CertificatePem") | not' \
   "local wallet mode should not inject a verifier certificate"
 assert_jq "$local_realm" \
-  '.identityProviders[0].config | has("verifierInfo") | not' \
+  "$pid_idp"'.config | has("verifierInfo") | not' \
   "local wallet mode should not inject sandbox verifier info"
+
+assert_jq "$local_realm" \
+  '[.identityProviderMappers[] | select(.identityProviderMapper | startswith("oid4vp-"))]
+     | length > 0
+       and all(.identityProviderMapper == "oid4vp-sd-jwt-user-session-attribute-idp-mapper")' \
+  "only SD-JWT session mappers should be configured"
+assert_jq "$local_realm" \
+  '[.identityProviderMappers[] | select(.identityProviderMapper | startswith("oid4vp-"))]
+     | all(.config."credential.type" == "urn:eudi:pid:de:1" and .config."credential.id" == "pid")' \
+  "every claim mapper should request the German PID credential"
+assert_jq "$local_realm" \
+  '[.identityProviderMappers[] | select(.identityProviderMapper | startswith("oid4vp-")) | .config.claim]
+     | sort == ["address.country", "address.locality", "address.postal_code",
+                "address.street_address", "birthdate", "family_name", "given_name",
+                "place_of_birth.locality"]' \
+  "the requested claims should be the German PID SD-JWT claim set"
+assert_jq "$local_realm" \
+  "$pid_idp"'.config.credentialSets | fromjson | .[0].options == [["pid"]]' \
+  "the credential set should require the German PID alone"
 
 write_sandbox_inputs
 sandbox_realm="$TMP_DIR/sandbox-realm.json"
@@ -79,13 +113,19 @@ sandbox_realm="$TMP_DIR/sandbox-realm.json"
   --output "$sandbox_realm" >/dev/null
 
 assert_jq "$sandbox_realm" \
-  '.identityProviders[0].config.trustedAuthoritiesMode == "none"' \
+  "$trust_idp"'.config.advertiseTrustedAuthorities == ""' \
   "sandbox mode should keep trusted authorities disabled by default"
 assert_jq "$sandbox_realm" \
-  '.identityProviders[0].config.x509CertificatePem | contains("BEGIN CERTIFICATE")' \
+  "$trust_idp"'.config.trustListLoTEType == "http://uri.etsi.org/19602/LoTEType/EUPIDProvidersList"' \
+  "sandbox mode should expect the EU PID providers trust list type"
+assert_jq "$sandbox_realm" \
+  "$pid_idp"'.config.x509CertificatePem | contains("BEGIN CERTIFICATE")' \
   "sandbox mode should inject the verifier certificate"
 assert_jq "$sandbox_realm" \
-  '.identityProviders[0].config.verifierInfo | fromjson | .[0].type == "PidCredential"' \
+  "$pid_idp"'.config.verifierInfo | fromjson | .[0].type == "PidCredential"' \
   "sandbox mode should inject verifier info JSON"
+assert_jq "$sandbox_realm" \
+  "$pid_idp"'.config.clientIdScheme == "x509_hash" and .config.responseMode == "direct_post.jwt"' \
+  "sandbox mode should use the high assurance profile settings"
 
 echo "setup-local-realm tests passed"
