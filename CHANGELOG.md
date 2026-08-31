@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.15](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.14...v0.1.15) (2026-08-31)
+
+
+### Bug Fixes
+
+* update oid4vp extension, config and dcql for wallet test ([65f0e97](https://github.com/ba-itsys/eudi-wallet-connector/commit/65f0e97f9e79d768a7510af49f5ead4db322dd1b))
+
 ## [0.1.14](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.13...v0.1.14) (2026-08-27)
 
 
