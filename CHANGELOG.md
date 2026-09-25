@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.17](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.16...v0.1.17) (2026-09-25)
+
+
+### Documentation
+
+* add contributing guidelines to README ([4b30537](https://github.com/ba-itsys/eudi-wallet-connector/commit/4b30537a46afcb02a752407d6f01de202669c787))
+
 ## [0.1.16](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.15...v0.1.16) (2026-09-10)
 
 
