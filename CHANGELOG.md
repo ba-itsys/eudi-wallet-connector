@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.18](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.17...v0.1.18) (2026-11-03)
+
+
+### Bug Fixes
+
+* **deps:** migrate oid4vc-dev to github.com/eudi-dev/eudi-dev/v3 ([3a85aa7](https://github.com/ba-itsys/eudi-wallet-connector/commit/3a85aa75b3c6d4a12b161533320b8902929ec08c))
+
 ## [0.1.17](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.16...v0.1.17) (2026-11-02)
 
 
