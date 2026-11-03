@@ -19,7 +19,7 @@ set -eu
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 TOOLS_DIR="${ROOT_DIR}/tools"
 TOOLS_BINDIR="${ROOT_DIR}/target/bin"
-OID4VC_DEV_MODULE="github.com/dominikschlosser/oid4vc-dev"
+EUDI_DEV_MODULE="github.com/eudi-dev/eudi-dev/v3"
 
 DEFAULT_SANDBOX_DIR="${SANDBOX_DIR:-${ROOT_DIR}/sandbox}"
 DEFAULT_PEM_FILE="${DEFAULT_SANDBOX_DIR}/sandbox-ngrok-combined.pem"
@@ -33,7 +33,7 @@ One-command local development for the wallet connector distribution.
 
 Modes:
   (default)                Sandbox mode for real wallet testing via ngrok
-  --local-wallet           Local oid4vc-dev wallet mode
+  --local-wallet           Local eudi-dev wallet mode
 
 Options:
   --pem <file>             Combined PEM file for sandbox mode
@@ -42,10 +42,10 @@ Options:
                            Default: sandbox/sandbox-verifier-info.json
   --trust-list-url <url>   Override trust list URL
   --domain <name>          Custom ngrok domain
-  --wallet-port <port>     oid4vc-dev wallet port (default: 8087)
+  --wallet-port <port>     eudi-dev wallet port (default: 8087)
   --no-build               Skip provider download
   --skip-realm             Skip realm generation
-  --no-proxy               Disable oid4vc-dev proxy even if available
+  --no-proxy               Disable eudi-dev proxy even if available
   --no-ngrok               Run Keycloak without ngrok
   --ngrok-only             Start only ngrok tunnel, no Keycloak
   -h, --help               Show this help
@@ -67,9 +67,20 @@ require_cmd() {
   fi
 }
 
-resolve_oid4vc_dev_bin() {
+resolve_eudi_dev_bin() {
+  if command -v eudi-dev >/dev/null 2>&1; then
+    command -v eudi-dev
+    return 0
+  fi
+
+  # legacy binary name, kept for compatibility with older installs
   if command -v oid4vc-dev >/dev/null 2>&1; then
     command -v oid4vc-dev
+    return 0
+  fi
+
+  if [ -x "${TOOLS_BINDIR}/eudi-dev" ]; then
+    printf '%s\n' "${TOOLS_BINDIR}/eudi-dev"
     return 0
   fi
 
@@ -81,11 +92,11 @@ resolve_oid4vc_dev_bin() {
   return 1
 }
 
-oid4vc_dev_version() {
-  go -C "$TOOLS_DIR" list -m -f '{{.Version}}' "$OID4VC_DEV_MODULE"
+eudi_dev_version() {
+  go -C "$TOOLS_DIR" list -m -f '{{.Version}}' "$EUDI_DEV_MODULE"
 }
 
-install_oid4vc_dev() {
+install_eudi_dev() {
   require_cmd go
 
   if [ ! -f "${TOOLS_DIR}/go.mod" ]; then
@@ -93,10 +104,10 @@ install_oid4vc_dev() {
     exit 1
   fi
 
-  version="$(oid4vc_dev_version)"
+  version="$(eudi_dev_version)"
   mkdir -p "$TOOLS_BINDIR"
-  echo "==> Installing oid4vc-dev ${version} into target/bin/..."
-  GOBIN="$TOOLS_BINDIR" go -C "$TOOLS_DIR" install "${OID4VC_DEV_MODULE}@${version}"
+  echo "==> Installing eudi-dev ${version} into target/bin/..."
+  GOBIN="$TOOLS_BINDIR" go -C "$TOOLS_DIR" install "${EUDI_DEV_MODULE}@${version}"
 }
 
 PEM_FILE="$DEFAULT_PEM_FILE"
@@ -130,16 +141,16 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-OID4VC_DEV_BIN=""
-if resolved_bin="$(resolve_oid4vc_dev_bin 2>/dev/null)"; then
-  OID4VC_DEV_BIN="$resolved_bin"
+EUDI_DEV_BIN=""
+if resolved_bin="$(resolve_eudi_dev_bin 2>/dev/null)"; then
+  EUDI_DEV_BIN="$resolved_bin"
 fi
 
 if [ "$LOCAL_WALLET" = "true" ]; then
   DO_NGROK=false
-  if [ -z "$OID4VC_DEV_BIN" ]; then
-    install_oid4vc_dev
-    OID4VC_DEV_BIN="$(resolve_oid4vc_dev_bin)"
+  if [ -z "$EUDI_DEV_BIN" ]; then
+    install_eudi_dev
+    EUDI_DEV_BIN="$(resolve_eudi_dev_bin)"
   fi
 fi
 
@@ -194,19 +205,19 @@ PROXY_PORT=9090
 KC_PORT=8080
 PROXY_ENABLED=false
 
-if [ "$DO_PROXY" = "true" ] && [ -n "$OID4VC_DEV_BIN" ]; then
+if [ "$DO_PROXY" = "true" ] && [ -n "$EUDI_DEV_BIN" ]; then
   PROXY_ENABLED=true
-  echo "==> oid4vc-dev proxy will run alongside Keycloak (port $PROXY_PORT -> $KC_PORT)"
-  echo "    oid4vc-dev dashboard: http://localhost:9091"
+  echo "==> eudi-dev proxy will run alongside Keycloak (port $PROXY_PORT -> $KC_PORT)"
+  echo "    eudi-dev dashboard: http://localhost:9091"
   export NGROK_TARGET_PORT="$PROXY_PORT"
 elif [ "$DO_PROXY" = "true" ]; then
-  echo "==> oid4vc-dev not found, skipping proxy"
+  echo "==> eudi-dev not found, skipping proxy"
 fi
 
 WALLET_PID=""
 if [ "$LOCAL_WALLET" = "true" ]; then
-  echo "==> Starting oid4vc-dev wallet on port $WALLET_PORT..."
-  "$OID4VC_DEV_BIN" wallet serve --pid --docker --port "$WALLET_PORT" --base-url "" --register &
+  echo "==> Starting eudi-dev wallet on port $WALLET_PORT..."
+  "$EUDI_DEV_BIN" wallet serve --pid --docker --port "$WALLET_PORT" --base-url "" --register &
   WALLET_PID=$!
   sleep 1
   echo "    Wallet UI: http://localhost:$WALLET_PORT"
@@ -217,11 +228,11 @@ PROXY_PID=""
 PROXY_OVERRIDE=""
 cleanup() {
   if [ -n "$PROXY_PID" ] && kill -0 "$PROXY_PID" 2>/dev/null; then
-    echo "==> Stopping oid4vc-dev proxy..."
+    echo "==> Stopping eudi-dev proxy..."
     kill "$PROXY_PID" 2>/dev/null || true
   fi
   if [ -n "$WALLET_PID" ] && kill -0 "$WALLET_PID" 2>/dev/null; then
-    echo "==> Stopping oid4vc-dev wallet..."
+    echo "==> Stopping eudi-dev wallet..."
     kill "$WALLET_PID" 2>/dev/null || true
   fi
   if [ -n "$PROXY_OVERRIDE" ]; then
@@ -235,12 +246,12 @@ start_proxy() {
     return 0
   fi
 
-  echo "==> Starting oid4vc-dev proxy..."
-  "$OID4VC_DEV_BIN" proxy --target "http://localhost:$KC_PORT" --port "$PROXY_PORT" &
+  echo "==> Starting eudi-dev proxy..."
+  "$EUDI_DEV_BIN" proxy --target "http://localhost:$KC_PORT" --port "$PROXY_PORT" &
   PROXY_PID=$!
   sleep 0.5
   if ! kill -0 "$PROXY_PID" 2>/dev/null; then
-    echo "oid4vc-dev proxy exited before startup completed." >&2
+    echo "eudi-dev proxy exited before startup completed." >&2
     wait "$PROXY_PID" 2>/dev/null || true
     exit 1
   fi

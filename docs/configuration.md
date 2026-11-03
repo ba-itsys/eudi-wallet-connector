@@ -89,7 +89,7 @@ Local wallet mode:
 - `clientIdScheme=plain`
 - `responseMode=direct_post`
 - no verifier certificate
-- `eudi-pid-trust.trustListUrl` points to the local `oid4vc-dev` PID trust list through `host.docker.internal`
+- `eudi-pid-trust.trustListUrl` points to the local `eudi-dev` PID trust list through `host.docker.internal`
 - `eudi-pid-trust.trustListLoTEType=http://uri.etsi.org/19602/LoTEType/local`
 - `sslRequired=none`
 

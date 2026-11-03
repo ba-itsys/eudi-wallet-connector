@@ -30,11 +30,11 @@ Usage:
   scripts/setup-local-realm.sh --pem <file> --verifier-info <file> [--trust-list-url <url>] [--output <file>]
 
 Modes:
-  --local-wallet           Configure the connector for the local oid4vc-dev wallet
+  --local-wallet           Configure the connector for the local eudi-dev wallet
   --pem/--verifier-info    Configure the connector for a real wallet sandbox
 
 Options:
-  --wallet-port <port>     oid4vc-dev wallet port (default: 8087)
+  --wallet-port <port>     eudi-dev wallet port (default: 8087)
   --trust-list-url <url>   Override trust list URL
   --output <file>          Output realm file
   -h, --help               Show this help

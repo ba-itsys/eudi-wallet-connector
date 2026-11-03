@@ -3,4 +3,4 @@
 
 package tools
 
-import _ "github.com/dominikschlosser/oid4vc-dev"
+import _ "github.com/eudi-dev/eudi-dev/v3"
