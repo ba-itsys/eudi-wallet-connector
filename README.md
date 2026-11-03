@@ -13,7 +13,7 @@ It uses the `de.arbeitsagentur.opdt:keycloak-extension-oid4vp` provider and incl
 - transient-user configuration (`doNotStoreUsers=true`) so no brokered users are persisted
 - session-note mapping from wallet claims to `id_token` and `userinfo`
 - a default OIDC client for relying-party testing
-- local Docker Compose startup and a `scripts/dev.sh` workflow for the German SPRIND sandbox testing environment and `oid4vc-dev`
+- local Docker Compose startup and a `scripts/dev.sh` workflow for the German SPRIND sandbox testing environment and `eudi-dev`
 - documentation for configuration and theming
 
 ## Quick Start
@@ -34,7 +34,7 @@ Or use the one-command workflow:
 scripts/dev.sh --local-wallet
 ```
 
-If `oid4vc-dev` is not already installed, local-wallet mode installs it into `target/bin/` with `go install` using the version from [tools/go.mod](tools/go.mod).
+If `eudi-dev` is not already installed, local-wallet mode installs it into `target/bin/` with `go install` using the version from [tools/go.mod](tools/go.mod).
 
 Once Keycloak is up:
 

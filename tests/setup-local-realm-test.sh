@@ -69,10 +69,10 @@ assert_jq "$local_realm" \
   "local wallet mode should not advertise trusted authorities"
 assert_jq "$local_realm" \
   "$trust_idp"'.config.trustListUrl == "http://host.docker.internal:8087/api/trustlists/pid"' \
-  "local wallet mode should point at the oid4vc-dev PID trust list"
+  "local wallet mode should point at the eudi-dev PID trust list"
 assert_jq "$local_realm" \
   "$trust_idp"'.config.trustListLoTEType == "http://uri.etsi.org/19602/LoTEType/local"' \
-  "local wallet mode should expect the oid4vc-dev trust list type"
+  "local wallet mode should expect the eudi-dev trust list type"
 assert_jq "$local_realm" \
   "$trust_idp"'.config.servedCredentialTypes == "urn:eudi:pid:de:1"' \
   "trust material should serve the German PID credential type"

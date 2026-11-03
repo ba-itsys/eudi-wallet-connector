@@ -102,7 +102,7 @@ Local wallet mode from [scripts/setup-local-realm.sh](../scripts/setup-local-rea
 - `clientIdScheme=plain`
 - `responseMode=direct_post`
 - `eudi-pid-trust.advertiseTrustedAuthorities` empty
-- `eudi-pid-trust.trustListUrl` points to the Docker-reachable local `oid4vc-dev` PID trust list
+- `eudi-pid-trust.trustListUrl` points to the Docker-reachable local `eudi-dev` PID trust list
 - `eudi-pid-trust.trustListLoTEType=http://uri.etsi.org/19602/LoTEType/local`
 
 Sandbox mode from [scripts/setup-local-realm.sh](../scripts/setup-local-realm.sh):
