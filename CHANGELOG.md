@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.19](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.18...v0.1.19) (2026-11-09)
+
+
+### Dependencies
+
+* **deps:** bump github.com/eudi-dev/eudi-dev/v3 in /tools ([5f300ab](https://github.com/ba-itsys/eudi-wallet-connector/commit/5f300ab28081361d3dd9d082ec399bb8a65cce10))
+
 ## [0.1.18](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.17...v0.1.18) (2026-11-03)
 
 
