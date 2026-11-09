@@ -2,7 +2,7 @@ module github.com/arbeitsagentur/eudi-wallet-connector/tools
 
 go 1.26.0
 
-require github.com/eudi-dev/eudi-dev/v3 v3.7.1
+require github.com/eudi-dev/eudi-dev/v3 v3.8.0
 
 require (
 	github.com/fatih/color v1.18.0 // indirect
