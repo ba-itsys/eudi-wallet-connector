@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.20](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.19...v0.1.20) (2026-11-23)
+
+
+### Dependencies
+
+* **deps:** bump de.arbeitsagentur.opdt:keycloak-extension-oid4vp ([94a0796](https://github.com/ba-itsys/eudi-wallet-connector/commit/94a07966208370d591eb9db96433a009fcabb58e))
+* **deps:** bump github.com/eudi-dev/eudi-dev/v3 in /tools ([30f5dbe](https://github.com/ba-itsys/eudi-wallet-connector/commit/30f5dbe815640958ecbbbb14f405330bd4be583d))
+* **deps:** bump github.com/eudi-dev/eudi-dev/v3 in /tools ([d021eaf](https://github.com/ba-itsys/eudi-wallet-connector/commit/d021eaf9e5bcec62fd0b15fe5ae8543db927b557))
+
 ## [0.1.19](https://github.com/ba-itsys/eudi-wallet-connector/compare/v0.1.18...v0.1.19) (2026-11-09)
 
 
